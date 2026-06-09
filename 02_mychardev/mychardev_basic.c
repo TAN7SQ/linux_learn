@@ -186,17 +186,22 @@ static const struct file_operations mychardev_fops = {
     .write = mychardev_write,
     .release = mychardev_release,
 };
+
 // class 和 device 用来配合系统创建设备节点。
 //  * cdev_add 之后，内核知道有这个字符设备；
 //  * device_create 之后，用户态通常能看到 /dev/mychardev。
 static struct class *mychardev_class;
 static struct device *mychardev_device;
+
 static int __init mychardev_init(void)
 {
     int ret;
 
     // 1. 自动申请一个设备号
-    ret = alloc_chrdev_region(&mychardev_devno, 0, 1, DEVICE_NAME);
+    ret = alloc_chrdev_region(&mychardev_devno,
+                              0,            // 次设备号从 0 开始
+                              1,            // 申请 1 个设备号
+                              DEVICE_NAME); // 设备名称，会显示在/proc/device中
     if (ret) {
         pr_err("mychardev_init: alloc_chrdev_region failed, ret = %d\n", ret);
         return ret;

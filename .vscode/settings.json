@@ -11,5 +11,8 @@
   "files.associations": {
     "*.h": "c",
     "*.c": "c"
+  },
+  "workbench.editorAssociations": {
+    "*.md": "vscode.markdown.preview.editor" // 预览 Markdown 文件
   }
 }
