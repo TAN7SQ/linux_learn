@@ -106,7 +106,6 @@ static ssize_t mychardev_read(struct file *file,
 
     *ppos += to_copy;
     ret = to_copy;
-
     pr_info("mychardev_basic: read %zd bytes, ppos = %lld\n", ret, *ppos);
 
 out_unlock:
