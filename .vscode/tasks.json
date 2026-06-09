@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "linux-drivers: update compile_commands",
+      "type": "shell",
+      "command": "python3 /home/tans/workspace/linux_drivers/tools/update_compile_commands.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "01_hello_kernel: build",
+      "type": "shell",
+      "command": "make -C /home/tans/workspace/linux_drivers/01_hello_kernel && python3 /home/tans/workspace/linux_drivers/tools/update_compile_commands.py",
+      "problemMatcher": []
+    }
+  ]
+}

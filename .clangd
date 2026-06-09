@@ -1,0 +1,16 @@
+CompileFlags:
+  CompilationDatabase: /home/tans/workspace/linux_drivers
+  Add:
+    - -Wno-unknown-warning-option
+    - -Wno-ignored-optimization-argument
+    - -Wno-unused-command-line-argument
+  Remove:
+    - -fconserve-stack
+    - -mbranch-protection=*
+    - -mabi=*
+    - -mstack-protector-guard=*
+    - -mstack-protector-guard-reg=*
+    - -mstack-protector-guard-offset=*
+    - -fpatchable-function-entry=*
+    - -Wa,*
+    - --param=*

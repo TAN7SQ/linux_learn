@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "name": "rk3566-kernel-module",
+      "compileCommands": "/home/tans/workspace/linux_drivers/compile_commands.json",
+      "compilerPath": "/home/tans/workspace/orangepi-build/toolchains/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-gcc",
+      "cStandard": "gnu89",
+      "intelliSenseMode": "linux-gcc-arm64",
+      "configurationProvider": "llvm-vs-code-extensions.vscode-clangd",
+      "browse": {
+        "path": [
+          "/home/tans/workspace/linux_drivers",
+          "/home/tans/workspace/orangepi-build/kernel/orange-pi-5.10-rk35xx",
+          "/home/tans/workspace/kernel_build/rk3566_cm4"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ],
+  "version": 4
+}

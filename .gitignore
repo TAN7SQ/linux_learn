@@ -1,0 +1,17 @@
+learn_doc/
+build/
+**/build/
+.cache/
+
+*.o
+*.ko
+*.mod
+*.mod.c
+*.symvers
+*.order
+.*.cmd
+Module.symvers
+modules.order
+
+*.tmp
+*.log
