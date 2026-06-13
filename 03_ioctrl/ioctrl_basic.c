@@ -40,6 +40,9 @@ static ssize_t mychardev_read(struct file *file, char __user *user_buf, size_t c
     size_t to_copy;
     ssize_t ret;
 
+    if (*ppos < 0)
+        return -EINVAL;
+
     if (mutex_lock_interruptible(&mychardev_lock))
         return -ERESTARTSYS;
 
@@ -63,7 +66,6 @@ static ssize_t mychardev_read(struct file *file, char __user *user_buf, size_t c
     pr_info("mychardev_ioctl: read %zu bytes, read_count=%u\n",
             to_copy,
             read_count);
-    return ret;
 
 out_unlock:
     mutex_unlock(&mychardev_lock);
@@ -95,7 +97,6 @@ static ssize_t mychardev_write(struct file *file,
     ret = to_copy;
 
     pr_info("mychardev_write: count=%zu, ppos=%lld\n", count, *ppos);
-    return ret;
 
 out_unlock:
     mutex_unlock(&mychardev_lock);
@@ -116,7 +117,7 @@ static long mychardev_ioctl(struct file *file,
                             unsigned long arg)
 {
     struct mychardev_status status;
-    long ret;
+    long ret = 0;
 
     switch (cmd) {
     case MYCHARDEV_IOCTL_GET_STATUS:
@@ -139,7 +140,7 @@ static long mychardev_ioctl(struct file *file,
         if (mutex_lock_interruptible(&mychardev_lock))
             return -ERESTARTSYS;
         memset(mychardev_buf, 0, sizeof(mychardev_buf));
-        mychardev_len = sizeof("mychardev_ioctl: hello from kernel\n") - 1;
+        mychardev_len = 0;
         write_count = 0;
         read_count = 0;
         mutex_unlock(&mychardev_lock);
@@ -167,6 +168,7 @@ static int mychardev_release(struct inode *inode, struct file *file)
 static dev_t mychardev_devno;
 static struct cdev mychardev_cdev;
 static struct class *mychardev_class;
+static struct device *mychardev_device;
 
 static const struct file_operations mychardev_fops = {
     .owner = THIS_MODULE,
@@ -181,54 +183,41 @@ static int __init mychardev_init(void)
 {
     int ret;
 
-    /* TODO 14: 使用 alloc_chrdev_region 申请设备号。 */
     ret = alloc_chrdev_region(&mychardev_devno, 0, 1, DEVICE_NAME);
     if (ret) {
-        pr_err("mychardev_ioctl_todo: alloc_chrdev_region failed, ret=%d\n", ret);
+        pr_err("mychardev_ioctl: alloc_chrdev_region failed, ret=%d\n", ret);
         return ret;
     }
 
-    /* TODO 15: cdev_init，并设置 owner。 */
     cdev_init(&mychardev_cdev, &mychardev_fops);
     mychardev_cdev.owner = THIS_MODULE;
 
-    /* TODO 16: cdev_add，把设备号和 cdev 注册进内核。 */
     ret = cdev_add(&mychardev_cdev, mychardev_devno, 1);
     if (ret) {
-        pr_err("mychardev_ioctl_todo: cdev_add failed, ret=%d\n", ret);
+        pr_err("mychardev_ioctl: cdev_add failed, ret=%d\n", ret);
         goto ret_chrdev_region;
     }
 
-    /* TODO 17: class_create。 */
     mychardev_class = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(mychardev_class)) {
         ret = PTR_ERR(mychardev_class);
-        pr_err("mychardev_ioctl_todo: class_create failed, ret=%d\n", ret);
+        pr_err("mychardev_ioctl: class_create failed, ret=%d\n", ret);
         goto ret_destroy_cdev;
     }
 
-    /* TODO 18: device_create，生成 /dev/mychardev_todo。 */
-    if (IS_ERR(device_create(mychardev_class, NULL, mychardev_devno, NULL, DEVICE_NAME))) {
-        ret = PTR_ERR(device_create(mychardev_class, NULL, mychardev_devno, NULL, DEVICE_NAME));
-        pr_err("mychardev_ioctl_todo: device_create failed, ret=%d\n", ret);
-        ret = -ENOMEM;
+    mychardev_device = device_create(mychardev_class, NULL, mychardev_devno, NULL, DEVICE_NAME);
+    if (IS_ERR(mychardev_device)) {
+        ret = PTR_ERR(mychardev_device);
+        pr_err("mychardev_ioctl: device_create failed, ret=%d\n", ret);
         goto ret_destroy_class;
     }
 
-    pr_info("mychardev_ioctl_todo: loaded, device=/dev/%s major=%u minor=%u\n",
+    pr_info("mychardev_ioctl: loaded, device=/dev/%s major=%u minor=%u\n",
             DEVICE_NAME,
             MAJOR(mychardev_devno),
             MINOR(mychardev_devno));
     return 0;
 
-    /*
-     * TODO 19:
-     * 按失败位置补完整错误处理标签。
-     * 顺序参考：
-     *   device_create 失败 -> class_destroy -> cdev_del -> unregister_chrdev_region
-     *   class_create 失败  -> cdev_del -> unregister_chrdev_region
-     *   cdev_add 失败      -> unregister_chrdev_region
-     */
 ret_destroy_class:
     class_destroy(mychardev_class);
 ret_destroy_cdev:
@@ -240,18 +229,17 @@ ret_chrdev_region:
 
 static void __exit mychardev_exit(void)
 {
-    /* TODO 20: 按 init 的反向顺序释放 device、class、cdev、设备号。 */
     device_destroy(mychardev_class, mychardev_devno);
     class_destroy(mychardev_class);
     cdev_del(&mychardev_cdev);
     unregister_chrdev_region(mychardev_devno, 1);
 
-    pr_info("mychardev_ioctl_todo: unloaded\n");
+    pr_info("mychardev_ioctl: unloaded\n");
 }
 
 module_init(mychardev_init);
 module_exit(mychardev_exit);
 
 MODULE_AUTHOR("Tans");
-MODULE_DESCRIPTION("TODO character device driver: read/write/ioctl");
+MODULE_DESCRIPTION("Character device driver: read/write/ioctl");
 MODULE_LICENSE("GPL");

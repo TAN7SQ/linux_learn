@@ -3,6 +3,7 @@ TOOLCHAIN_DIR := /home/tans/workspace/orangepi-build/toolchains/gcc-arm-9.2-2019
 CROSS_COMPILE := $(TOOLCHAIN_DIR)/bin/aarch64-none-linux-gnu-
 LOCALVERSION := -rockchip-rk356x
 USER_CC := aarch64-linux-gnu-gcc
+USER_APP := ioctrl_test
 
 KERNEL_SRC := /home/tans/workspace/orangepi-build/kernel/orange-pi-5.10-rk35xx
 KERNEL_BUILD := /home/tans/workspace/kernel_build/rk3566_cm4
